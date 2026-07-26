@@ -22,7 +22,27 @@ animierter weiß/blauer Kugel und Anbindung an die Google-Gemini-API.
   Android-Version ab – bei manchen Geräten (v. a. Samsung, manche OEMs) ist
   diese Rolle auf vorinstallierte Apps beschränkt.
 
-## Einrichtung
+## Installation direkt aufs Handy (ohne PC)
+
+Ein GitHub-Actions-Workflow (`.github/workflows/build-apk.yml`) baut bei
+jedem Push automatisch eine installierbare Debug-APK:
+
+1. Im GitHub-Repo auf **Actions** gehen, den neuesten Lauf von
+   **"Build APK"** öffnen (läuft automatisch nach jedem Push auf diesen
+   Branch, dauert ca. 3–5 Minuten).
+2. Unten bei **Artifacts** die Datei `jarvis-debug-apk` herunterladen
+   (ZIP mit der `app-debug.apk` darin) – das geht auch direkt im
+   Handy-Browser.
+3. Die entpackte `app-debug.apk` öffnen/installieren. Falls Android
+   "Installation aus unbekannten Quellen" blockiert: In der Meldung auf
+   **Einstellungen** tippen und für den verwendeten Browser/Dateimanager
+   erlauben.
+4. App öffnen, Mikrofon-Berechtigung erlauben, über das Zahnrad oben
+   rechts den Gemini-API-Key eintragen (siehe unten).
+5. Auf die Kugel tippen und sprechen – Jarvis transkribiert, fragt
+   Gemini und liest die Antwort vor.
+
+## Einrichtung (alternativ mit Android Studio auf einem PC/Mac)
 
 1. **Projekt öffnen**: In Android Studio (Iguana oder neuer) als bestehendes
    Projekt öffnen – `File > Open` auf diesen Ordner zeigen.
