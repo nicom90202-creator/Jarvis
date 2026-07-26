@@ -1,0 +1,78 @@
+# Jarvis – persönlicher Android-Assistent
+
+Eine native Android-App (Kotlin + Jetpack Compose) mit Sprachsteuerung,
+animierter weiß/blauer Kugel und Anbindung an die Google-Gemini-API.
+
+## Funktionen
+
+- **Weißes UI mit animierter weiß/blauer Kugel** (`ui/OrbView.kt`), die je nach
+  Zustand (Idle, Zuhören, Denken, Antworten, Fehler) unterschiedlich pulsiert
+  und rotiert.
+- **Spracheingabe** über Android's `SpeechRecognizer` (`voice/SpeechRecognizerManager.kt`).
+- **Sprachausgabe** über Android's `TextToSpeech` (`voice/TextToSpeechManager.kt`).
+- **Gemini-Anbindung** über einen schlanken REST-Client (`data/GeminiRepository.kt`),
+  inkl. Gesprächsverlauf für kontextbezogene Antworten.
+- **Sicherer API-Key-Speicher** über `EncryptedSharedPreferences`
+  (`data/ApiKeyStore.kt`) – der Schlüssel wird verschlüsselt auf dem Gerät
+  abgelegt, nicht im Code.
+- **System-Assistent-Anbindung (Best Effort)**: Ein `VoiceInteractionService`
+  (`assistant/`) registriert Jarvis dafür, dass er unter
+  *Einstellungen > Apps > Standard-Apps > Digitaler Assistent* ausgewählt
+  werden kann. Das Verhalten hängt stark vom Gerätehersteller und der
+  Android-Version ab – bei manchen Geräten (v. a. Samsung, manche OEMs) ist
+  diese Rolle auf vorinstallierte Apps beschränkt.
+
+## Einrichtung
+
+1. **Projekt öffnen**: In Android Studio (Iguana oder neuer) als bestehendes
+   Projekt öffnen – `File > Open` auf diesen Ordner zeigen.
+2. **Gemini API-Key besorgen**: Kostenlos unter https://aistudio.google.com/apikey
+   erstellen.
+3. **App starten**: Auf Gerät/Emulator ausführen, Mikrofon-Berechtigung
+   erlauben, über das Zahnrad oben rechts den Gemini-API-Key eintragen.
+4. **Sprechen**: Auf die Kugel tippen und sprechen – Jarvis transkribiert,
+   fragt Gemini und liest die Antwort vor.
+
+### Als Standard-Assistent aktivieren (optional)
+
+1. App einmal öffnen und Mikrofon-Berechtigung erteilen (Pflicht, da die
+   Assistent-Session selbst keine Laufzeit-Berechtigung anfordern kann).
+2. Unter *Einstellungen > Apps > Standard-Apps > Digitaler Assistent* (Name
+   und Pfad variiert je nach Hersteller) "Jarvis" auswählen, falls es dort
+   angeboten wird.
+3. Assist-Geste auslösen (z. B. Home-Taste lang drücken, je nach Gerät).
+
+## Projektstruktur
+
+```
+app/src/main/java/com/jarvis/assistant/
+├── MainActivity.kt                  Einstiegspunkt, Berechtigungen
+├── JarvisApplication.kt
+├── ui/
+│   ├── AssistantScreen.kt           Haupt-UI (Kugel, Status, Transcript)
+│   ├── AssistantViewModel.kt        Verbindet Speech, Gemini, TTS
+│   ├── AssistantUiState.kt
+│   ├── OrbView.kt                   Die animierte Kugel
+│   ├── SettingsSheet.kt             API-Key-Dialog
+│   └── theme/                       Farben, Typografie
+├── voice/
+│   ├── SpeechRecognizerManager.kt   Spracherkennung
+│   └── TextToSpeechManager.kt       Sprachausgabe
+├── data/
+│   ├── GeminiRepository.kt          REST-Client für Gemini
+│   ├── ApiKeyStore.kt               Verschlüsselte Key-Ablage
+│   └── ChatMessage.kt
+└── assistant/
+    ├── JarvisVoiceInteractionService.kt
+    ├── JarvisVoiceInteractionSessionService.kt
+    └── JarvisVoiceInteractionSession.kt
+```
+
+## Hinweis zu dieser Umgebung
+
+Diese Session hatte keinen Zugriff auf ein Android SDK und keinen
+Netzwerkzugriff auf Googles Maven-Repository (`dl.google.com`), daher konnte
+der Build hier nicht kompiliert/getestet werden. Der Code wurde sorgfältig
+manuell auf Imports, API-Signaturen und Typkonsistenz geprüft, aber ein
+erster Build in Android Studio sollte durchgeführt werden, um letzte
+Fehler (z. B. abweichende Bibliotheksversionen) auszuschließen.

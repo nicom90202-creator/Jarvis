@@ -1,0 +1,9 @@
+<resources>
+    <color name="jarvis_white">#FFFFFF</color>
+    <color name="jarvis_off_white">#F7F9FC</color>
+    <color name="jarvis_blue_light">#7FC7FF</color>
+    <color name="jarvis_blue">#2E8CFF</color>
+    <color name="jarvis_blue_deep">#0B5FCC</color>
+    <color name="jarvis_text">#1A1C1E</color>
+    <color name="jarvis_text_muted">#6B7280</color>
+</resources>

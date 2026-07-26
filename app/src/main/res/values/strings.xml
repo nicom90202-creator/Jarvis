@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Jarvis</string>
+    <string name="mic_hint">Tippen und sprechen</string>
+    <string name="listening">Ich höre zu…</string>
+    <string name="thinking">Jarvis denkt nach…</string>
+    <string name="speaking">Jarvis antwortet…</string>
+    <string name="idle_hint">Tippe auf die Kugel, um Jarvis zu wecken</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="gemini_key_label">Gemini API-Schlüssel</string>
+    <string name="gemini_key_hint">API-Schlüssel einfügen</string>
+    <string name="save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="no_key_error">Bitte hinterlege zuerst deinen Gemini API-Schlüssel in den Einstellungen.</string>
+    <string name="mic_permission_denied">Ohne Mikrofon-Zugriff kann Jarvis dich nicht hören.</string>
+    <string name="network_error">Verbindung zu Gemini fehlgeschlagen. Bitte erneut versuchen.</string>
+</resources>
