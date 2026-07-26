@@ -3,8 +3,10 @@ package com.jarvis.assistant.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.jarvis.assistant.actions.DeviceActions
 import com.jarvis.assistant.data.ApiKeyStore
 import com.jarvis.assistant.data.ChatMessage
+import com.jarvis.assistant.data.FunctionCallRequest
 import com.jarvis.assistant.data.GeminiRepository
 import com.jarvis.assistant.data.GeminiResult
 import com.jarvis.assistant.voice.SpeechRecognizerManager
@@ -18,6 +20,7 @@ class AssistantViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val apiKeyStore = ApiKeyStore(application)
     private val geminiRepository = GeminiRepository()
+    private val deviceActions = DeviceActions(application)
     private val history = mutableListOf<ChatMessage>()
 
     private var speechRecognizerManager: SpeechRecognizerManager? = null
@@ -56,7 +59,7 @@ class AssistantViewModel(application: Application) : AndroidViewModel(applicatio
         val manager = SpeechRecognizerManager(
             context = getApplication(),
             onPartialResult = { partial -> _uiState.update { it.copy(transcript = partial) } },
-            onResult = { finalText -> handleRecognizedSpeech(finalText) },
+            onResult = { finalText -> submitUserText(finalText) },
             onError = { message ->
                 _uiState.update { it.copy(orbState = OrbState.IDLE, errorMessage = message) }
             },
@@ -80,32 +83,51 @@ class AssistantViewModel(application: Application) : AndroidViewModel(applicatio
         speechRecognizerManager?.stopListening()
         textToSpeechManager.stop()
         _uiState.update { it.copy(errorMessage = null, response = "") }
-        handleRecognizedSpeech(trimmed)
+        submitUserText(trimmed)
     }
 
-    private fun handleRecognizedSpeech(text: String) {
+    private fun submitUserText(text: String) {
         _uiState.update { it.copy(transcript = text, orbState = OrbState.THINKING) }
-        history.add(ChatMessage(ChatMessage.Role.USER, text))
+        history.add(ChatMessage.UserText(text))
+        viewModelScope.launch { runConversationTurn() }
+    }
 
+    private suspend fun runConversationTurn(hopsRemaining: Int = MAX_FUNCTION_CALL_HOPS) {
         val apiKey = apiKeyStore.getGeminiApiKey()
         if (apiKey.isNullOrBlank()) {
             _uiState.update { it.copy(orbState = OrbState.IDLE, errorMessage = "no_key") }
             return
         }
 
-        viewModelScope.launch {
-            when (val result = geminiRepository.sendMessage(apiKey, history.toList())) {
-                is GeminiResult.Success -> {
-                    history.add(ChatMessage(ChatMessage.Role.ASSISTANT, result.text))
-                    _uiState.update { it.copy(response = result.text, orbState = OrbState.SPEAKING) }
-                    textToSpeechManager.speak(result.text)
-                }
-                is GeminiResult.Error -> {
+        when (val result = geminiRepository.sendMessage(apiKey, history.toList())) {
+            is GeminiResult.Success -> {
+                history.add(ChatMessage.ModelText(result.text))
+                _uiState.update { it.copy(response = result.text, orbState = OrbState.SPEAKING) }
+                textToSpeechManager.speak(result.text)
+            }
+            is GeminiResult.FunctionCalls -> {
+                if (hopsRemaining <= 0) {
                     _uiState.update {
-                        it.copy(orbState = OrbState.ERROR, errorMessage = result.message)
+                        it.copy(orbState = OrbState.ERROR, errorMessage = "Zu viele Aktionen in Folge, bitte erneut versuchen.")
                     }
+                    return
+                }
+                executeFunctionCalls(result.calls)
+                runConversationTurn(hopsRemaining - 1)
+            }
+            is GeminiResult.Error -> {
+                _uiState.update {
+                    it.copy(orbState = OrbState.ERROR, errorMessage = result.message)
                 }
             }
+        }
+    }
+
+    private suspend fun executeFunctionCalls(calls: List<FunctionCallRequest>) {
+        for (call in calls) {
+            history.add(ChatMessage.ModelFunctionCall(call.name, call.args))
+            val response = deviceActions.execute(call.name, call.args)
+            history.add(ChatMessage.FunctionResult(call.name, response))
         }
     }
 
@@ -122,5 +144,9 @@ class AssistantViewModel(application: Application) : AndroidViewModel(applicatio
         super.onCleared()
         speechRecognizerManager?.destroy()
         textToSpeechManager.shutdown()
+    }
+
+    private companion object {
+        const val MAX_FUNCTION_CALL_HOPS = 5
     }
 }

@@ -56,6 +56,7 @@ fun AssistantScreen(
     onSendText: (String) -> Unit,
     onSaveApiKey: (String) -> Unit,
     onDismissError: () -> Unit,
+    onRequestExtraPermissions: () -> Unit,
 ) {
     var showSettings by remember { mutableStateOf(false) }
     var textInput by remember { mutableStateOf("") }
@@ -188,6 +189,7 @@ fun AssistantScreen(
                 showSettings = false
                 onDismissError()
             },
+            onRequestExtraPermissions = onRequestExtraPermissions,
         )
     }
 }

@@ -30,6 +30,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val requestExtraPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { /* Ergebnisse werden bei Bedarf über DeviceActions.hasPermission neu geprüft. */ }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hasMicPermission = hasRecordAudioPermission()
@@ -48,6 +52,15 @@ class MainActivity : ComponentActivity() {
                     onSendText = { text -> viewModel.sendTextMessage(text) },
                     onSaveApiKey = { key -> viewModel.saveApiKey(key) },
                     onDismissError = { viewModel.consumeError() },
+                    onRequestExtraPermissions = {
+                        requestExtraPermissionsLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.READ_CONTACTS,
+                                Manifest.permission.READ_CALENDAR,
+                                Manifest.permission.WRITE_CALENDAR,
+                            ),
+                        )
+                    },
                 )
             }
         }

@@ -21,6 +21,29 @@ animierter weiß/blauer Kugel und Anbindung an die Google-Gemini-API.
   werden kann. Das Verhalten hängt stark vom Gerätehersteller und der
   Android-Version ab – bei manchen Geräten (v. a. Samsung, manche OEMs) ist
   diese Rolle auf vorinstallierte Apps beschränkt.
+- **Text-Eingabe** als Alternative zur Spracheingabe, unten am Bildschirm.
+- **Geräte-Fähigkeiten via Gemini Function Calling** (`actions/`):
+  Google-Suche für aktuelle Infos, Kalender lesen/anlegen, Wecker/Timer
+  stellen, Apps öffnen, Kontakte suchen, Taschenlampe, Lautstärke, Karten
+  öffnen. **Anrufe und SMS werden nur vorbereitet** (Dialer/SMS-App öffnet
+  sich mit ausgefülltem Empfänger/Text) – Jarvis sendet nie automatisch,
+  der letzte Tap liegt immer beim Nutzer.
+
+### Welche Berechtigungen Jarvis anfragt und warum
+
+| Berechtigung | Wofür |
+|---|---|
+| Mikrofon | Spracheingabe |
+| Kontakte (lesen) | Kontakte für Anruf/SMS/Termine nachschlagen |
+| Kalender (lesen/schreiben) | Termine anzeigen und anlegen |
+
+Anrufe/SMS benötigen bewusst **keine** `CALL_PHONE`/`SEND_SMS`-Berechtigung:
+Jarvis öffnet nur die Telefon- bzw. SMS-App mit vorausgefülltem Inhalt: Nutzung
+über System-Intents (`ACTION_DIAL`, `ACTION_SENDTO`), nicht über eine
+Direktversand-API. Wecker/Timer laufen ebenfalls über die System-Uhr-App per
+Intent. Alle Berechtigungen lassen sich über das Zahnrad in der App
+("Zugriff auf Kontakte & Kalender erlauben") oder jederzeit in den
+Android-Systemeinstellungen widerrufen.
 
 ## Installation direkt aufs Handy (ohne PC)
 
@@ -79,9 +102,13 @@ app/src/main/java/com/jarvis/assistant/
 │   ├── SpeechRecognizerManager.kt   Spracherkennung
 │   └── TextToSpeechManager.kt       Sprachausgabe
 ├── data/
-│   ├── GeminiRepository.kt          REST-Client für Gemini
+│   ├── GeminiRepository.kt          REST-Client für Gemini (inkl. Function Calling)
+│   ├── GeminiTools.kt               Datenklassen für Tool-Deklarationen
 │   ├── ApiKeyStore.kt               Verschlüsselte Key-Ablage
-│   └── ChatMessage.kt
+│   └── ChatMessage.kt               Gesprächsverlauf (Text- & Function-Call-Turns)
+├── actions/
+│   ├── ToolRegistry.kt              JSON-Schema aller Jarvis-Fähigkeiten für Gemini
+│   └── DeviceActions.kt             Führt die Fähigkeiten auf dem Gerät aus
 └── assistant/
     ├── JarvisVoiceInteractionService.kt
     ├── JarvisVoiceInteractionSessionService.kt

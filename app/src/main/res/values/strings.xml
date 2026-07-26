@@ -15,4 +15,6 @@
     <string name="network_error">Verbindung zu Gemini fehlgeschlagen. Bitte erneut versuchen.</string>
     <string name="text_input_hint">Nachricht an Jarvis…</string>
     <string name="send">Senden</string>
+    <string name="grant_permissions">Zugriff auf Kontakte &amp; Kalender erlauben</string>
+    <string name="grant_permissions_hint">Damit kann Jarvis Kontakte suchen sowie Termine lesen/anlegen.</string>
 </resources>

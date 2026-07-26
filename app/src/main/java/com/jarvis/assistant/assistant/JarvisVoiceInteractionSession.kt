@@ -70,6 +70,7 @@ class JarvisVoiceInteractionSession(context: Context) :
                         onSendText = { text -> viewModel.sendTextMessage(text) },
                         onSaveApiKey = { key -> viewModel.saveApiKey(key) },
                         onDismissError = { viewModel.consumeError() },
+                        onRequestExtraPermissions = {},
                     )
                 }
             }
