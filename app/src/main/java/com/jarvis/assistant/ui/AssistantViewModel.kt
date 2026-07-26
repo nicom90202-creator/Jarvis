@@ -68,6 +68,21 @@ class AssistantViewModel(application: Application) : AndroidViewModel(applicatio
         manager.startListening()
     }
 
+    fun sendTextMessage(text: String) {
+        val trimmed = text.trim()
+        if (trimmed.isBlank()) return
+        val state = _uiState.value.orbState
+        if (state == OrbState.THINKING || state == OrbState.SPEAKING) return
+        if (!apiKeyStore.hasGeminiApiKey()) {
+            _uiState.update { it.copy(errorMessage = "no_key") }
+            return
+        }
+        speechRecognizerManager?.stopListening()
+        textToSpeechManager.stop()
+        _uiState.update { it.copy(errorMessage = null, response = "") }
+        handleRecognizedSpeech(trimmed)
+    }
+
     private fun handleRecognizedSpeech(text: String) {
         _uiState.update { it.copy(transcript = text, orbState = OrbState.THINKING) }
         history.add(ChatMessage(ChatMessage.Role.USER, text))

@@ -67,6 +67,7 @@ class JarvisVoiceInteractionSession(context: Context) :
                         hasMicPermission = true,
                         onRequestMicPermission = {},
                         onMicTapped = { viewModel.onMicTapped() },
+                        onSendText = { text -> viewModel.sendTextMessage(text) },
                         onSaveApiKey = { key -> viewModel.saveApiKey(key) },
                         onDismissError = { viewModel.consumeError() },
                     )

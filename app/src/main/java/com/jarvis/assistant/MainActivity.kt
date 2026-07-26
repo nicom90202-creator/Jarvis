@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
                         requestMicPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     },
                     onMicTapped = { viewModel.onMicTapped() },
+                    onSendText = { text -> viewModel.sendTextMessage(text) },
                     onSaveApiKey = { key -> viewModel.saveApiKey(key) },
                     onDismissError = { viewModel.consumeError() },
                 )

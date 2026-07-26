@@ -7,19 +7,26 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,8 +37,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import com.jarvis.assistant.R
 import com.jarvis.assistant.ui.theme.JarvisBlueDeep
 import com.jarvis.assistant.ui.theme.JarvisTextMuted
@@ -43,10 +53,12 @@ fun AssistantScreen(
     hasMicPermission: Boolean,
     onRequestMicPermission: () -> Unit,
     onMicTapped: () -> Unit,
+    onSendText: (String) -> Unit,
     onSaveApiKey: (String) -> Unit,
     onDismissError: () -> Unit,
 ) {
     var showSettings by remember { mutableStateOf(false) }
+    var textInput by remember { mutableStateOf("") }
 
     val statusText = when {
         uiState.errorMessage == "no_key" -> stringResource(R.string.no_key_error)
@@ -79,7 +91,7 @@ fun AssistantScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(PaddingValues(horizontal = 32.dp)),
+                .padding(PaddingValues(horizontal = 32.dp, vertical = 88.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -125,6 +137,43 @@ fun AssistantScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     color = JarvisBlueDeep,
                     textAlign = TextAlign.Center,
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            fun submit() {
+                if (textInput.isNotBlank()) {
+                    onSendText(textInput)
+                    textInput = ""
+                }
+            }
+
+            OutlinedTextField(
+                value = textInput,
+                onValueChange = { textInput = it },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text(stringResource(R.string.text_input_hint)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions(onSend = { submit() }),
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            IconButton(onClick = { submit() }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = stringResource(R.string.send),
+                    tint = JarvisBlueDeep,
                 )
             }
         }

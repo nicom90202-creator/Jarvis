@@ -13,4 +13,6 @@
     <string name="no_key_error">Bitte hinterlege zuerst deinen Gemini API-Schlüssel in den Einstellungen.</string>
     <string name="mic_permission_denied">Ohne Mikrofon-Zugriff kann Jarvis dich nicht hören.</string>
     <string name="network_error">Verbindung zu Gemini fehlgeschlagen. Bitte erneut versuchen.</string>
+    <string name="text_input_hint">Nachricht an Jarvis…</string>
+    <string name="send">Senden</string>
 </resources>
